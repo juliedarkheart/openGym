@@ -4,7 +4,7 @@ import { useStore } from '../store/useStore.js'
 import { Button, NumberField, Section, TextField, SelectRow } from '../components/ui.jsx'
 import Icon from '../components/Icon.jsx'
 import { todayISO } from '../lib/format.js'
-import { addNutrients, createFood, createMeal, diaryGroups, nutrientsForAmount, nutritionTotalForDate, nutritionTotalForMeals } from '../lib/nutrition.js'
+import { addNutrients, buildMealPlan, createFood, createMeal, diaryGroups, nutrientsForAmount, nutritionTotalForDate, nutritionTotalForMeals } from '../lib/nutrition.js'
 import { lookupFoodBarcode, normalizeBarcode } from '../lib/food-api.js'
 import { MOBILE } from '../lib/mobile.js'
 import { scanCode } from '../lib/scan.js'
@@ -29,8 +29,8 @@ export default function Nutrition() {
   const lookup = async code => { setStatus('Looking up product…'); try { const data = await lookupFoodBarcode(code); saveFood(data); setBarcode(''); setStatus(`Found ${data.name}.`) } catch (e) { setStatus(e.message); setShowForm(true); set('barcode', normalizeBarcode(code)) } }
   const found = code => { setScanOpen(false); lookup(code.value) }
   const logMeal = (food = selected, type = mealType, amount = servings) => { if (!food) return; const snapshot = nutrientsForAmount(food.nutrientsPerServing, amount); update(s => { s.meals = [...(s.meals || []), createMeal({ date, mealType: type, foodId: food.id, foodName: food.name, servings: amount, nutrients: snapshot })] }); setFoodId(null); setServings(1); setStatus(`${food.name} added to ${labelOf(type).toLowerCase()}.`) }
-  const saveTargets = e => { e.preventDefault(); const data = Object.fromEntries(new FormData(e.currentTarget).entries()); update(s => { s.nutritionTargets = Object.fromEntries(['calories', 'protein', 'carbs', 'fat'].map(k => [k, Number(data[k]) || null])) }); setStatus('Daily goals saved.') }
-  const makePlan = () => { const pool = foods.slice().sort((a, b) => (b.nutrientsPerServing.protein || 0) - (a.nutrientsPerServing.protein || 0)); const picks = [pool[0], pool[1], pool[2], pool[3]].filter(Boolean); if (!picks.length) { setStatus('Save foods first, then I can build a plan.'); return } update(s => { s.mealPlans = [...(s.mealPlans || []).filter(p => p.date !== date), { date, createdAt: new Date().toISOString(), meals: picks.map((f, i) => ({ mealType: TYPES[i].value, foodId: f.id, foodName: f.name, servings: 1 })) }] }); setStatus('Today’s plan is ready.') }
+  const saveTargets = e => { e.preventDefault(); const data = Object.fromEntries(new FormData(e.currentTarget).entries()); const calories = Number(data.calories) || null; update(s => { s.nutritionTargets = Object.fromEntries(['calories', 'protein', 'carbs', 'fat'].map(k => [k, k === 'calories' && calories ? Math.max(1000, calories) : (Number(data[k]) || null)])) }); setStatus(calories && calories < 1000 ? 'Goals saved at the 1000 kcal safety floor. Ask a qualified professional before setting a lower target.' : 'Daily goals saved.') }
+  const makePlan = () => { const picks = buildMealPlan(foods, targets, date); if (!picks.length) { setStatus('Save foods first, then I can build a plan.'); return } update(s => { s.mealPlans = [...(s.mealPlans || []).filter(p => p.date !== date), { date, createdAt: new Date().toISOString(), meals: picks }] }); setStatus('Today’s calorie-based plan is ready.') }
   const plan = (S.mealPlans || []).find(p => p.date === date); const plannedTotal = nutritionTotalForMeals(plan?.meals || [], foods)
   return <div className="narrow">
     <div className="hdr"><div><h1>Nutrition</h1><div className="sub">Food diary · {date}</div></div><button className="iconbtn" onClick={() => nav('/home')} aria-label="Back"><Icon name="chevronLeft" /></button></div>

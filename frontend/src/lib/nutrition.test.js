@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { addNutrients, createFood, createMeal, diaryGroups, nutrientsForAmount, nutritionTotalForDate, nutritionTotalForMeals } from './nutrition.js'
+import { addNutrients, buildMealPlan, createFood, createMeal, diaryGroups, nutrientsForAmount, nutritionTotalForDate, nutritionTotalForMeals } from './nutrition.js'
 
 describe('nutrition calculations', () => {
   it('scales a serving without losing decimal precision', () => {
@@ -23,6 +23,19 @@ describe('nutrition calculations', () => {
     const foods = [{ id: 'a', nutrientsPerServing: { calories: 300, protein: 25 } }, { id: 'b', nutrientsPerServing: { calories: 200, protein: 10 } }]
     const plan = [{ foodId: 'a', servings: 1 }, { foodId: 'b', servings: 2 }]
     expect(nutritionTotalForMeals(plan, foods)).toMatchObject({ calories: 700, protein: 45 })
+  })
+  it('builds four planned meal slots from calorie goals', () => {
+    const foods = [
+      { id: 'a', name: 'Oats', nutrientsPerServing: { calories: 400, protein: 20 } },
+      { id: 'b', name: 'Chicken', nutrientsPerServing: { calories: 500, protein: 45 } },
+      { id: 'c', name: 'Rice', nutrientsPerServing: { calories: 300, protein: 6 } },
+      { id: 'd', name: 'Yogurt', nutrientsPerServing: { calories: 200, protein: 15 } },
+    ]
+    const plan = buildMealPlan(foods, { calories: 2000 }, '2026-09-11')
+    expect(plan).toHaveLength(4)
+    expect(plan.map(item => item.mealType)).toEqual(['breakfast', 'lunch', 'dinner', 'snack'])
+    expect(plan.every(item => item.servings > 0)).toBe(true)
+    expect(plan.every(item => item.targetCalories > 0)).toBe(true)
   })
   it('groups diary entries by meal and totals each section', () => {
     const meals = [

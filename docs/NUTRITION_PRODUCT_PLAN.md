@@ -130,6 +130,14 @@ Planner output should include:
 
 Do not begin with a generative AI chef. Start with deterministic assembly from food/recipe records and constraints. An optional AI layer can later explain or vary a plan, but it must not become the source of nutrition facts.
 
+### Evidence-based implementation rules
+
+- Calorie targets are user-entered or transparently estimated, never presented as a diagnosis. Plans use a configurable floor of 1,000 kcal/day and direct users to professional advice for medical, pregnancy, eating-disorder, or unusually low-energy situations.
+- Macro targets can be entered in grams or derived from percentages; protein suggestions are shown as an adjustable reference range for active adults, not a prescription.
+- Plans prioritize an overall nutrient-dense pattern and food variety rather than banning individual foods. The user can choose dietary pattern, allergies, dislikes, budget, cooking time, and available foods.
+- Meal timing remains flexible. The planner supports eating windows and shift schedules but does not claim that breakfast frequency or a fixed number of meals is universally required.
+- Every plan is editable, can be swapped meal-by-meal, and can be logged directly. The app measures planned-versus-consumed adherence without grading or shaming the user.
+
 ### Training integration
 
 - Home combines today’s workout status with today’s nutrition summary.

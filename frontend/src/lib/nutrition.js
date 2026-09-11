@@ -35,6 +35,20 @@ export function nutritionTotalForMeals(plan = [], foods = []) {
   }))
 }
 
+export function buildMealPlan(foods = [], targets = {}, date) {
+  const pool = foods.filter(food => Number(food?.nutrientsPerServing?.calories) > 0)
+  if (!pool.length) return []
+  const calories = Number(targets.calories) > 0 ? Number(targets.calories) : 2000
+  const slots = [['breakfast', 0.25], ['lunch', 0.30], ['dinner', 0.30], ['snack', 0.15]]
+  const ranked = pool.slice().sort((a, b) => (b.nutrientsPerServing.protein || 0) - (a.nutrientsPerServing.protein || 0))
+  return slots.map(([mealType, share], index) => {
+    const food = ranked[index % ranked.length]
+    const targetCalories = Math.round(calories * share)
+    const servings = Math.max(0.25, Math.round(targetCalories / food.nutrientsPerServing.calories * 4) / 4)
+    return { date, mealType, foodId: food.id, foodName: food.name, servings, targetCalories }
+  })
+}
+
 export function diaryGroups(meals = [], date) {
   const order = ['breakfast', 'lunch', 'dinner', 'snack']
   return order.map(type => {
