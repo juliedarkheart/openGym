@@ -19,11 +19,17 @@ async function loadJsQr() {
   return _jsqr
 }
 
+let _zxing = null
+async function loadZxing() {
+  if (!_zxing) _zxing = await import('@zxing/browser')
+  return _zxing
+}
+
 let _detector = null
+const FORMATS = ['qr_code', 'ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'code_39', 'itf', 'codabar']
 function nativeDetector() {
   if (_detector !== null) return _detector
-  try {
-    _detector = (typeof BarcodeDetector === 'function') ? new BarcodeDetector({ formats: ['qr_code'] }) : false
+  try { _detector = (typeof BarcodeDetector === 'function') ? new BarcodeDetector({ formats: FORMATS }) : false
   } catch (e) { _detector = false }
   return _detector
 }
@@ -61,6 +67,12 @@ export async function decodeSource(source) {
       if (b) return { value: b.rawValue, fmt: normalizeFmt(b.format) || 'qrcode' }
     } catch (e) { /* fall through to jsQR */ }
   }
+  try {
+    const { BrowserMultiFormatReader } = await loadZxing()
+    const reader = new BrowserMultiFormatReader()
+    const result = await reader.decodeFromCanvas(_canvas)
+    if (result?.getText()) return { value: result.getText(), fmt: normalizeFmt(result.getBarcodeFormat()) || 'barcode' }
+  } catch (e) { /* fall through to QR decoder */ }
   return decodeImageData(ctx.getImageData(0, 0, w, h))
 }
 
