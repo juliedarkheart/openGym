@@ -10,6 +10,7 @@ import Icon from '../components/Icon.jsx'
 import { Button } from '../components/ui.jsx'
 import { tappable } from '../lib/use-sheet-keyboard.js'
 import { glyphOf } from '../lib/glyphs.js'
+import { nutritionTotalForDate } from '../lib/nutrition.js'
 
 // Home = what to do now + a quick glance. Deep charts & history live in Stats.
 export default function Home() {
@@ -30,7 +31,8 @@ export default function Home() {
   const bw = lastBW(S)
   const prevBW = S.bodyweight.length > 1 ? S.bodyweight[S.bodyweight.length - 2] : null
   const delta = bw && prevBW ? bw.w - prevBW.w : null
-
+  const nutritionTotal = nutritionTotalForDate(S.meals || [], todayISO())
+  const nutritionTargets = S.nutritionTargets || {}
   const ws = weekStartOf(S)
   // The first day of the shown week. Named for the role, not for Monday — which day that is
   // is the setting.
@@ -166,6 +168,15 @@ export default function Home() {
         )}
         <div className="chart" style={{ marginTop: 8 }}><LineChart points={bwPoints} h={130} unit={S.unit} goal={S.targetW} /></div>
       </> : <div className="muted small">{t("No entries yet — log your weight to start the curve. It's also asked before every workout.")}</div>}
+    </div>
+
+    <div className="card tappable" style={{ cursor: 'pointer' }} {...tappable(() => nav('/nutrition'))}>
+      <div className="row between" style={{ marginBottom: 8 }}><h2 style={{ margin: 0 }}>Goals</h2><Icon name="chevronRight" className="chev" /></div>
+      <div className="row" style={{ justifyContent: 'space-between', gap: 10 }}>
+        <div><div className="small dim">Calories</div><div className="big" style={{ fontSize: 20 }}>{Math.round(nutritionTotal.calories)}{nutritionTargets.calories ? ` / ${Math.round(nutritionTargets.calories)}` : ''} <span className="muted" style={{ fontSize: 12 }}>kcal</span></div></div>
+        <div><div className="small dim">Protein</div><div className="big" style={{ fontSize: 20 }}>{Math.round(nutritionTotal.protein)}{nutritionTargets.protein ? ` / ${Math.round(nutritionTargets.protein)}` : ''} <span className="muted" style={{ fontSize: 12 }}>g</span></div></div>
+        <div style={{ maxWidth: 130 }}><div className="small dim">Meal plan</div><div className="ss">{(S.mealPlans || []).some(p => p.date === todayISO()) ? 'Ready for today' : 'Build today’s plan'}</div></div>
+      </div>
     </div>
 
     <div className="card tappable" style={{ cursor: 'pointer' }} {...tappable(() => calendarSheet())}>

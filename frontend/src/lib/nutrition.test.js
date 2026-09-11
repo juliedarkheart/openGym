@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { addNutrients, createFood, createMeal, nutrientsForAmount, nutritionTotalForDate } from './nutrition.js'
+import { addNutrients, createFood, createMeal, nutrientsForAmount, nutritionTotalForDate, nutritionTotalForMeals } from './nutrition.js'
 
 describe('nutrition calculations', () => {
   it('scales a serving without losing decimal precision', () => {
@@ -18,5 +18,10 @@ describe('nutrition calculations', () => {
   })
   it('adds missing nutrients as zero', () => {
     expect(addNutrients({ calories: 10 }, { protein: 3 })).toMatchObject({ calories: 10, protein: 3, fat: 0 })
+  })
+  it('totals planned meal nutrition from food portions', () => {
+    const foods = [{ id: 'a', nutrientsPerServing: { calories: 300, protein: 25 } }, { id: 'b', nutrientsPerServing: { calories: 200, protein: 10 } }]
+    const plan = [{ foodId: 'a', servings: 1 }, { foodId: 'b', servings: 2 }]
+    expect(nutritionTotalForMeals(plan, foods)).toMatchObject({ calories: 700, protein: 45 })
   })
 })

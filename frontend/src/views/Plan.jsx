@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../store/useStore.js'
-import { DAYN, weekOrder, weekStartOf, uid, exCount } from '../lib/format.js'
+import { DAYN, weekOrder, weekStartOf, uid, exCount, todayISO } from '../lib/format.js'
 import { t } from '../lib/i18n.js'
 import { dayAssignSheet, dayAddRoutineSheet, starterPlanSheet, planToolsSheet } from '../sheets.jsx'
 import Icon from '../components/Icon.jsx'
@@ -10,6 +10,7 @@ import { glyphOf, DEFAULT_GLYPH } from '../lib/glyphs.js'
 import { DEMO } from '../lib/demo.js'
 import { MOBILE } from '../lib/mobile.js'
 import { coachAvailable } from '../lib/coach.js'
+import { nutritionTotalForDate } from '../lib/nutrition.js'
 
 export default function Plan() {
   const nav = useNavigate()
@@ -18,6 +19,9 @@ export default function Plan() {
   const config = useStore(s => s.config)
   const coachMode = useStore(s => s.coachLocal?.mode)
   const user = useStore(s => s.user)
+  const nutritionTotal = nutritionTotalForDate(S.meals || [], todayISO())
+  const nutritionTargets = S.nutritionTargets || {}
+  const todayMealPlan = (S.mealPlans || []).find(plan => plan.date === todayISO())
 
   /* The Coach's only entry point in the app. Its screens have existed since the UI landed and
      nothing linked to them, so the feature was reachable only by typing the URL — enabled,
@@ -50,6 +54,10 @@ export default function Plan() {
       </span>
       <Icon name="chevronRight" className="coach-cta-chev" />
     </button>}
+    <div className="card tappable" style={{ cursor: 'pointer', marginTop: 14 }} {...tappable(() => nav('/nutrition'))}>
+      <div className="row between"><div><div className="lbl2">Goals + meals</div><div className="ttl">Nutrition belongs to the plan</div><div className="ss">Today: {Math.round(nutritionTotal.calories)}{nutritionTargets.calories ? ` / ${Math.round(nutritionTargets.calories)}` : ''} kcal · {Math.round(nutritionTotal.protein)}{nutritionTargets.protein ? ` / ${Math.round(nutritionTargets.protein)}` : ''} g protein</div></div><Icon name="chevronRight" className="chev" /></div>
+      {todayMealPlan?.meals?.length ? <div className="ss" style={{ marginTop: 8 }}>Planned: {todayMealPlan.meals.map(meal => meal.foodName).join(' · ')}</div> : <div className="ss" style={{ marginTop: 8 }}>No meals planned for today — open Nutrition to build one.</div>}
+    </div>
 
     <div className="cols"><div>
       <h4 className="sec">{t('Week schedule')}</h4>

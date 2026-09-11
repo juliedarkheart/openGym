@@ -28,6 +28,13 @@ export function nutritionTotalForDate(meals = [], date) {
   return addNutrients(...meals.filter(meal => meal?.date === date).map(meal => meal.nutrientsSnapshot))
 }
 
+export function nutritionTotalForMeals(plan = [], foods = []) {
+  return addNutrients(...plan.map(item => {
+    const food = foods.find(candidate => candidate.id === item?.foodId)
+    return food ? nutrientsForAmount(food.nutrientsPerServing, item.servings || 1) : emptyNutrients()
+  }))
+}
+
 export function createFood({ id, name, brand = '', barcode = '', servingSize = 1, servingUnit = 'serving', nutrients = {}, source = 'manual' }) {
   return {
     id: id || `food-${Date.now().toString(36)}`,
