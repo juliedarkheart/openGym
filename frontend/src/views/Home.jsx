@@ -170,13 +170,14 @@ export default function Home() {
       </> : <div className="muted small">{t("No entries yet — log your weight to start the curve. It's also asked before every workout.")}</div>}
     </div>
 
-    <div className="card tappable" style={{ cursor: 'pointer' }} {...tappable(() => nav('/nutrition'))}>
-      <div className="row between" style={{ marginBottom: 8 }}><h2 style={{ margin: 0 }}>Goals</h2><Icon name="chevronRight" className="chev" /></div>
+    <div className="card" style={{ cursor: 'default' }}>
+      <div className="row between" style={{ marginBottom: 8 }}><button className="plain" onClick={() => nav('/nutrition')} style={{ textAlign: 'left' }}><h2 style={{ margin: 0 }}>Goals</h2><span className="small muted">Nutrition, meals, and daily targets</span></button><Icon name="chevronRight" className="chev" /></div>
       <div className="row" style={{ justifyContent: 'space-between', gap: 10 }}>
         <div><div className="small dim">Calories</div><div className="big" style={{ fontSize: 20 }}>{Math.round(nutritionTotal.calories)}{nutritionTargets.calories ? ` / ${Math.round(nutritionTargets.calories)}` : ''} <span className="muted" style={{ fontSize: 12 }}>kcal</span></div></div>
         <div><div className="small dim">Protein</div><div className="big" style={{ fontSize: 20 }}>{Math.round(nutritionTotal.protein)}{nutritionTargets.protein ? ` / ${Math.round(nutritionTargets.protein)}` : ''} <span className="muted" style={{ fontSize: 12 }}>g</span></div></div>
         <div style={{ maxWidth: 130 }}><div className="small dim">Meal plan</div><div className="ss">{(S.mealPlans || []).some(p => p.date === todayISO()) ? 'Ready for today' : 'Build today’s plan'}</div></div>
       </div>
+      <Button variant="primary" icon="plus" onClick={() => nav('/nutrition', { state: { tab: 'add' } })} style={{ width: '100%', marginTop: 12 }}>Add food</Button>
     </div>
 
     <div className="card tappable" style={{ cursor: 'pointer' }} {...tappable(() => calendarSheet())}>
