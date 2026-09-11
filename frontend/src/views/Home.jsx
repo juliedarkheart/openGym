@@ -177,7 +177,7 @@ export default function Home() {
         <div><div className="small dim">Protein</div><div className="big" style={{ fontSize: 20 }}>{Math.round(nutritionTotal.protein)}{nutritionTargets.protein ? ` / ${Math.round(nutritionTargets.protein)}` : ''} <span className="muted" style={{ fontSize: 12 }}>g</span></div></div>
         <div style={{ maxWidth: 130 }}><div className="small dim">Meal plan</div><div className="ss">{(S.mealPlans || []).some(p => p.date === todayISO()) ? 'Ready for today' : 'Build today’s plan'}</div></div>
       </div>
-      <Button variant="primary" icon="plus" onClick={() => nav('/nutrition', { state: { tab: 'add' } })} style={{ width: '100%', marginTop: 12 }}>Add food</Button>
+      <div className="row" style={{ gap: 8, marginTop: 12, flexWrap: 'wrap' }}><Button variant="primary" icon="plus" onClick={() => nav('/nutrition', { state: { tab: 'add' } })}>Add food</Button><Button onClick={() => nav('/nutrition', { state: { tab: 'targets' } })}>Set calorie goals</Button><Button onClick={() => nav('/nutrition', { state: { tab: 'plan' } })}>Meal plans</Button></div>
     </div>
 
     <div className="card tappable" style={{ cursor: 'pointer' }} {...tappable(() => calendarSheet())}>

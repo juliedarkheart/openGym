@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useStore } from '../store/useStore.js'
 import { Button, NumberField, Section, TextField, SelectRow } from '../components/ui.jsx'
@@ -19,7 +19,8 @@ function MacroLine({ label, value, target, color = 'var(--acc)', unit = 'g' }) {
 
 export default function Nutrition() {
   const nav = useNavigate(); const location = useLocation(); const S = useStore(s => s.S); const update = useStore(s => s.update)
-  const [tab, setTab] = useState(() => location.state?.tab === 'add' ? 'add' : 'diary'); const [query, setQuery] = useState(''); const [barcode, setBarcode] = useState(''); const [scanOpen, setScanOpen] = useState(false); const [status, setStatus] = useState('')
+  const [tab, setTab] = useState(() => location.state?.tab === 'add' ? 'add' : location.state?.tab === 'plan' ? 'plan' : location.state?.tab === 'targets' ? 'targets' : 'diary'); const [query, setQuery] = useState(''); const [barcode, setBarcode] = useState(''); const [scanOpen, setScanOpen] = useState(false); const [status, setStatus] = useState('')
+  useEffect(() => { if (location.state?.tab === 'add' || location.state?.tab === 'plan' || location.state?.tab === 'targets') setTab(location.state.tab) }, [location.state])
   const [foodId, setFoodId] = useState(null); const [servings, setServings] = useState(1); const [mealType, setMealType] = useState('snack'); const [form, setForm] = useState(emptyForm()); const [showForm, setShowForm] = useState(false)
   const date = todayISO(); const foods = S.foods || []; const meals = S.meals || []; const targets = S.nutritionTargets || {}; const total = useMemo(() => nutritionTotalForDate(meals, date), [meals, date]); const groups = useMemo(() => diaryGroups(meals, date), [meals, date]); const selected = foods.find(f => f.id === foodId); const fast = fastingStatus(targets.fasting)
   const recent = [...meals].reverse().map(m => foods.find(f => f.id === m.foodId)).filter(Boolean).filter((food, i, all) => all.findIndex(f => f.id === food.id) === i).slice(0, 6)
