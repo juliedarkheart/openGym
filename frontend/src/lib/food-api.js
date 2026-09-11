@@ -16,7 +16,8 @@ export async function lookupFoodBarcode(barcode, signal) {
   if (body.status !== 1 || !body.product) throw new Error('That barcode was not found. Add the label manually.')
   const p = body.product
   const n = p.nutriments || {}
-  const serving = p.serving_size || '100 g'
+  const hasServing = n['energy-kcal_serving'] != null || n.proteins_serving != null || n.carbohydrates_serving != null
+  const serving = hasServing ? (p.serving_size || 'serving') : '100 g'
   const name = p.product_name || p.generic_name || 'Scanned food'
   return {
     name,
