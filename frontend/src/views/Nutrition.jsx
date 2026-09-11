@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useStore } from '../store/useStore.js'
 import { Button, NumberField, Section, TextField, SelectRow } from '../components/ui.jsx'
 import Icon from '../components/Icon.jsx'
@@ -18,8 +18,8 @@ function Stat({ label, value, target, unit = 'g' }) { return <div><div className
 function MacroLine({ label, value, target, color = 'var(--acc)', unit = 'g' }) { const pct = target ? Math.min(100, Math.round(value / target * 100)) : 0; return <div style={{ marginTop: 10 }}><div className="row between small"><span>{label}</span><span className="muted">{Math.round(value)}{target ? ` / ${Math.round(target)}` : ''} {unit}</span></div>{target && <div style={{ height: 6, background: 'var(--surface-3)', borderRadius: 8, marginTop: 5 }}><div style={{ width: `${pct}%`, height: '100%', borderRadius: 8, background: color }} /></div>}</div> }
 
 export default function Nutrition() {
-  const nav = useNavigate(); const S = useStore(s => s.S); const update = useStore(s => s.update)
-  const [tab, setTab] = useState('diary'); const [query, setQuery] = useState(''); const [barcode, setBarcode] = useState(''); const [scanOpen, setScanOpen] = useState(false); const [status, setStatus] = useState('')
+  const nav = useNavigate(); const location = useLocation(); const S = useStore(s => s.S); const update = useStore(s => s.update)
+  const [tab, setTab] = useState(() => location.state?.tab === 'add' ? 'add' : 'diary'); const [query, setQuery] = useState(''); const [barcode, setBarcode] = useState(''); const [scanOpen, setScanOpen] = useState(false); const [status, setStatus] = useState('')
   const [foodId, setFoodId] = useState(null); const [servings, setServings] = useState(1); const [mealType, setMealType] = useState('snack'); const [form, setForm] = useState(emptyForm()); const [showForm, setShowForm] = useState(false)
   const date = todayISO(); const foods = S.foods || []; const meals = S.meals || []; const targets = S.nutritionTargets || {}; const total = useMemo(() => nutritionTotalForDate(meals, date), [meals, date]); const groups = useMemo(() => diaryGroups(meals, date), [meals, date]); const selected = foods.find(f => f.id === foodId)
   const recent = [...meals].reverse().map(m => foods.find(f => f.id === m.foodId)).filter(Boolean).filter((food, i, all) => all.findIndex(f => f.id === food.id) === i).slice(0, 6)
