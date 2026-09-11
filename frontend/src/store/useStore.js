@@ -68,7 +68,7 @@ export const DEF = {
   checkIn: true,
   // Nutrition stays in the same private profile payload as workouts so export/import and
   // server sync retain one coherent personal record. Meal rows carry nutrient snapshots.
-  foods: [], meals: [], mealPlans: [], nutritionTargets: { calories: null, protein: null, carbs: null, fat: null },
+  foods: [], meals: [], mealPlans: [], nutritionTargets: { calories: null, protein: null, carbs: null, fat: null, fasting: { enabled: false, start: '20:00', end: '12:00' } },
 }
 const clone = o => JSON.parse(JSON.stringify(o))
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { addNutrients, buildMealPlan, createFood, createMeal, diaryGroups, nutrientsForAmount, nutritionTotalForDate, nutritionTotalForMeals } from './nutrition.js'
+import { addNutrients, buildMealPlan, createFood, createMeal, diaryGroups, fastingStatus, nutrientsForAmount, nutritionTotalForDate, nutritionTotalForMeals } from './nutrition.js'
 
 describe('nutrition calculations', () => {
   it('scales a serving without losing decimal precision', () => {
@@ -36,6 +36,12 @@ describe('nutrition calculations', () => {
     expect(plan.map(item => item.mealType)).toEqual(['breakfast', 'lunch', 'dinner', 'snack'])
     expect(plan.every(item => item.servings > 0)).toBe(true)
     expect(plan.every(item => item.targetCalories > 0)).toBe(true)
+  })
+  it('reports an overnight fasting window correctly', () => {
+    const settings = { enabled: true, start: '20:00', end: '12:00' }
+    expect(fastingStatus(settings, new Date('2026-09-11T21:00:00'))).toBe('fasting')
+    expect(fastingStatus(settings, new Date('2026-09-11T10:00:00'))).toBe('fasting')
+    expect(fastingStatus(settings, new Date('2026-09-11T14:00:00'))).toBe('eating')
   })
   it('groups diary entries by meal and totals each section', () => {
     const meals = [

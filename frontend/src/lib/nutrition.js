@@ -49,6 +49,16 @@ export function buildMealPlan(foods = [], targets = {}, date) {
   })
 }
 
+export function fastingStatus(settings = {}, now = new Date()) {
+  if (!settings.enabled) return 'off'
+  const toMinutes = value => { const [hours, minutes] = String(value || '00:00').split(':').map(Number); return (hours || 0) * 60 + (minutes || 0) }
+  const current = now.getHours() * 60 + now.getMinutes()
+  const start = toMinutes(settings.start || '20:00'); const end = toMinutes(settings.end || '12:00')
+  if (start === end) return 'fasting'
+  const fasting = start > end ? current >= start || current < end : current >= start && current < end
+  return fasting ? 'fasting' : 'eating'
+}
+
 export function diaryGroups(meals = [], date) {
   const order = ['breakfast', 'lunch', 'dinner', 'snack']
   return order.map(type => {
