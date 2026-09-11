@@ -116,6 +116,16 @@ export default function Home() {
       </div>
     )}
 
+    <div className="card tappable" style={{ cursor: 'pointer' }} {...tappable(() => nav('/nutrition'))}>
+      <div className="row between">
+        <div className="row" style={{ gap: 9 }}>
+          <span className="lrow-i" style={{ background: 'var(--acc)' }}><Icon name="sparkles" /></span>
+          <div><div className="lbl2">{t('Today')}</div><div className="ttl">Nutrition</div><div className="ss">Track meals, targets, and what you actually ate.</div></div>
+        </div>
+        <Icon name="chevronRight" className="chev" />
+      </div>
+    </div>
+
     {!S.routines.length && !S.active && (
       <div className="card">
         <div className="row" style={{ gap: 10, marginBottom: 6 }}>

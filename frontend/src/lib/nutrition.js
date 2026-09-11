@@ -1,0 +1,50 @@
+// Nutrition domain helpers. Keep calculations pure so manual entry, barcode lookup,
+// meal planning, and future native scan flows all use the same rules.
+export const NUTRIENT_KEYS = ['calories', 'protein', 'carbs', 'fat', 'fiber', 'sugar']
+
+export const emptyNutrients = () => Object.fromEntries(NUTRIENT_KEYS.map(key => [key, 0]))
+
+export function cleanNutrients(input = {}) {
+  return Object.fromEntries(NUTRIENT_KEYS.map(key => {
+    const value = Number(input[key])
+    return [key, Number.isFinite(value) && value >= 0 ? Math.round(value * 100) / 100 : 0]
+  }))
+}
+
+export function nutrientsForAmount(perServing, servings = 1) {
+  const multiplier = Number(servings)
+  const safe = Number.isFinite(multiplier) && multiplier >= 0 ? multiplier : 0
+  const source = cleanNutrients(perServing)
+  return Object.fromEntries(NUTRIENT_KEYS.map(key => [key, Math.round(source[key] * safe * 100) / 100]))
+}
+
+export function addNutrients(...values) {
+  return Object.fromEntries(NUTRIENT_KEYS.map(key => [key,
+    Math.round(values.reduce((sum, value) => sum + (Number(value?.[key]) || 0), 0) * 100) / 100
+  ]))
+}
+
+export function nutritionTotalForDate(meals = [], date) {
+  return addNutrients(...meals.filter(meal => meal?.date === date).map(meal => meal.nutrientsSnapshot))
+}
+
+export function createFood({ id, name, brand = '', barcode = '', servingSize = 1, servingUnit = 'serving', nutrients = {}, source = 'manual' }) {
+  return {
+    id: id || `food-${Date.now().toString(36)}`,
+    name: String(name || '').trim(), brand: String(brand || '').trim(), barcode: String(barcode || '').trim(),
+    servingSize: Number(servingSize) > 0 ? Number(servingSize) : 1,
+    servingUnit: String(servingUnit || 'serving'),
+    nutrientsPerServing: cleanNutrients(nutrients), source,
+    sourceUpdatedAt: new Date().toISOString(),
+  }
+}
+
+export function createMeal({ id, date, time, mealType = 'snack', foodId, foodName, servings = 1, nutrients }) {
+  return {
+    id: id || `meal-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
+    date, time: time || new Date().toTimeString().slice(0, 5), mealType, foodId,
+    foodName: String(foodName || '').trim(), servings: Number(servings) || 1,
+    // Snapshot is intentional: updating a food later must not rewrite history.
+    nutrientsSnapshot: cleanNutrients(nutrients),
+  }
+}

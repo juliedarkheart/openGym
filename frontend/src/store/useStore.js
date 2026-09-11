@@ -66,6 +66,9 @@ export const DEF = {
   // card and the /checkin route; the saved gymCards stay so turning it back on restores them.
   // Defaults on; an older profile without the key reads as on (`!== false`).
   checkIn: true,
+  // Nutrition stays in the same private profile payload as workouts so export/import and
+  // server sync retain one coherent personal record. Meal rows carry nutrient snapshots.
+  foods: [], meals: [], nutritionTargets: { calories: null, protein: null, carbs: null, fat: null },
 }
 const clone = o => JSON.parse(JSON.stringify(o))
 
