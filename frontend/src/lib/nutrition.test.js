@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { addNutrients, createFood, createMeal, nutrientsForAmount, nutritionTotalForDate, nutritionTotalForMeals } from './nutrition.js'
+import { addNutrients, createFood, createMeal, diaryGroups, nutrientsForAmount, nutritionTotalForDate, nutritionTotalForMeals } from './nutrition.js'
 
 describe('nutrition calculations', () => {
   it('scales a serving without losing decimal precision', () => {
@@ -23,5 +23,16 @@ describe('nutrition calculations', () => {
     const foods = [{ id: 'a', nutrientsPerServing: { calories: 300, protein: 25 } }, { id: 'b', nutrientsPerServing: { calories: 200, protein: 10 } }]
     const plan = [{ foodId: 'a', servings: 1 }, { foodId: 'b', servings: 2 }]
     expect(nutritionTotalForMeals(plan, foods)).toMatchObject({ calories: 700, protein: 45 })
+  })
+  it('groups diary entries by meal and totals each section', () => {
+    const meals = [
+      createMeal({ date: '2026-09-11', mealType: 'breakfast', foodName: 'Oats', nutrients: { calories: 300, protein: 10 } }),
+      createMeal({ date: '2026-09-11', mealType: 'breakfast', foodName: 'Milk', nutrients: { calories: 100, protein: 7 } }),
+      createMeal({ date: '2026-09-11', mealType: 'dinner', foodName: 'Rice', nutrients: { calories: 200 } }),
+    ]
+    const groups = diaryGroups(meals, '2026-09-11')
+    expect(groups.map(group => group.type)).toEqual(['breakfast', 'dinner'])
+    expect(groups[0].total).toMatchObject({ calories: 400, protein: 17 })
+    expect(groups[0].meals).toHaveLength(2)
   })
 })

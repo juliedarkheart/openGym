@@ -35,6 +35,14 @@ export function nutritionTotalForMeals(plan = [], foods = []) {
   }))
 }
 
+export function diaryGroups(meals = [], date) {
+  const order = ['breakfast', 'lunch', 'dinner', 'snack']
+  return order.map(type => {
+    const entries = meals.filter(meal => meal?.date === date && meal?.mealType === type)
+    return entries.length ? { type, meals: entries, total: addNutrients(...entries.map(meal => meal.nutrientsSnapshot)) } : null
+  }).filter(Boolean)
+}
+
 export function createFood({ id, name, brand = '', barcode = '', servingSize = 1, servingUnit = 'serving', nutrients = {}, source = 'manual' }) {
   return {
     id: id || `food-${Date.now().toString(36)}`,
